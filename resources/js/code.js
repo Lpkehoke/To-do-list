@@ -1,18 +1,21 @@
 'use strict';
+//уведомление
+//кружочки
+//перетаскивание (драгон дроп(не надо))
+//чистый код, совершенный код
+//кнут - искусство програмирования (2 томa)
 window.onload = function () {
-	let wrapper = document.querySelector('.wrapper');
 
 	document.querySelector('.btn-for-new-column').onclick = function () {
 		let column = new Column (document.querySelector('.title-new-column').value);
 		document.querySelector('.wrapper').insertBefore(column.obj , document.querySelector('.div-for-new-column'));
 			column.obj.querySelector('.form__btn').onclick = function create () {
-			let content = column.obj.querySelector('.textarea'),
-				obj = new Note (content.value , column.obj);
+			let content = column.obj.querySelector('.textarea');
+			let	obj = new Note (content.value , column.obj);
 			content.value = '';
 		};
 		document.querySelector('.title-new-column').value = '';
 	};
-
 
 	function Column (title) {
 		if (!title) throw 'Enter title of column';
@@ -20,19 +23,19 @@ window.onload = function () {
 
 		contextCol.title = title;
 
-		let removeBtn = document.createElement('button'),
-			editBtn = document.createElement('button');
+		let removeBtn = document.createElement('button');
+		let	editBtn = document.createElement('button');
 
 		removeBtn.className = 'remove-note';
-		editBtn.className = 'edit-note';
+		editBtn.className	= 'edit-note';
 
 
-		let divNotes = document.createElement('div'),
-			form = document.createElement('div'),
-			textareaCol = document.createElement('textarea'),
-			button = document.createElement('button'),
-			mainColumn = document.createElement('div'),
-			hTitle = document.createElement('h3');
+		let divNotes = document.createElement('div');
+		let	form = document.createElement('div');
+		let	textareaCol = document.createElement('textarea');
+		let	button = document.createElement('button');
+		let	mainColumn = document.createElement('div');
+		let	hTitle = document.createElement('h3');
 
 		hTitle.innerHTML = title;
 
@@ -44,9 +47,19 @@ window.onload = function () {
 
 		button.innerHTML = 'Create';
 
+		let red	= Math.floor(Math.random() * 255);
+		let	green = Math.floor(Math.random() * 255);
+		let	blue = Math.floor(Math.random() * 255);
+		let	color = '#' +
+						(red	= (red > 16) ? red.toString(16) : '0' + red.toString(16)) +
+						(green	= (green > 16) ? green.toString(16) : '0' + green.toString(16)) +
+						(blue	= (blue > 16) ? blue.toString(16) : '0' + blue.toString(16));
+
+		mainColumn.style.background = color;
+
 		editBtn.onclick = function () {
-			let textarea = document.querySelector('.edit-textarea'),
-				bg = document.querySelector('.pop-up-meny');
+			let textarea = document.querySelector('.edit-textarea');
+			let	bg = document.querySelector('.pop-up-meny');
 
 			textarea.value = contextCol.title;
 			bg.style.display = 'block';
@@ -78,11 +91,11 @@ window.onload = function () {
 
 	function Note (str , parent) {
 		if (!str) throw 'There is not content';
-		let context = this,
-			div = document.createElement('div'),
-			divContent = document.createElement('div'),
-			removeBtn = document.createElement('button'),
-			editBtn = document.createElement('button');
+		let context = this;
+		let	div = document.createElement('div');
+		let	divContent = document.createElement('div');
+		let	removeBtn = document.createElement('button');
+		let	editBtn = document.createElement('button');
 		context.content = str;
 
 		removeBtn.className = 'remove-note';
