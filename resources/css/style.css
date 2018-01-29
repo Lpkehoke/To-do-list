@@ -17,13 +17,16 @@ body,
 	flex-grow: 1;
 }
 
-.column-note {
+.column-note,
+.empty-div {
+	flex: 0 0 auto;
 	position: relative;
 	display: flex;
 	flex-direction: column;
 	padding: 0.5em;
 	border: 0.01em solid black;
 	margin: 0.1em;
+	width: 16em;
 }
 
 .form {
@@ -129,5 +132,5 @@ body,
 /** ***/
 
 .div-for-new-column {
-
+	order: 9999;
 }
