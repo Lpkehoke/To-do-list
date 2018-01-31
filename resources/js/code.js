@@ -1,29 +1,28 @@
 'use strict';
 //уведомление
 //кружочки
-//перетаскивание (драгон дроп(не надо))
+//Перетаскивание на телефоне
+//
 window.onload = function () {
 
 	let WRAPPER = document.querySelector('.wrapper');
-	let ALL_COLUMN = [];
 
 	document.querySelector('.btn-for-new-column').onclick = function () {
 		let column = new Column (document.querySelector('.title-new-column').value);
-		ALL_COLUMN.push(column);
-		console.log(ALL_COLUMN);
 		column.obj.onmousedown = function (e) {
 			if (e.target !== column.obj) return;
 
 			let startLeft = column.obj.getBoundingClientRect().left;
-
 			let emptyDiv = document.createElement('div');
+
 			emptyDiv.className = 'empty-div';
-			emptyDiv.style.order = column.id;
 
 			WRAPPER.insertBefore(emptyDiv , column.obj);
 
 			column.obj.style.position = 'absolute';
 			column.obj.style.zIndex = 100;
+
+			WRAPPER.appendChild(column.obj);
 
 			moveAt(e);
 
@@ -32,36 +31,31 @@ window.onload = function () {
 			};
 
 			column.obj.onmouseup = function() {
+				WRAPPER.insertBefore(column.obj, emptyDiv);
+				column.obj.style.position = 'relative';
+				column.obj.style.left = 0;
+				column.obj.style.top = 0;
+				column.obj.style.zIndex = 1;
+				emptyDiv.remove();
 				document.onmousemove = null;
 				column.obj.onmouseup = null;
 			};
 
 			function moveAt(e) {
 				if (e.pageX < startLeft && e.pageX > 16) {
-					let a = column.id;
-					let b = column.id - 1; // не  айди минус первого, а айди предыдцщего!!!!!!!!!!!!!
-					ALL_COLUMN[a] = [ALL_COLUMN[b], ALL_COLUMN[b] = ALL_COLUMN[a]][0];
-					// column.id = [ALL_COLUMN[column.id - 1].id, ALL_COLUMN[column.id - 1].id = column.id][0];
-					ALL_COLUMN[a].id++;
-					ALL_COLUMN[b].id--;
-					// column.id--;
-					emptyDiv.style.order = [ALL_COLUMN[a].obj.style.order , ALL_COLUMN[a].obj.style.order = emptyDiv.style.order][0];
-					console.log(column.id);
-					console.log(ALL_COLUMN);
+					let pred = emptyDiv.previousElementSibling;
+
+					emptyDiv.remove();
+					WRAPPER.insertBefore(emptyDiv, pred);
 					startLeft -= 256;
 				};
 
-				if (e.pageX > startLeft + 256) {
-					let a = column.id;
-					let b = column.id + 1;
-					ALL_COLUMN[a] = [ALL_COLUMN[b], ALL_COLUMN[b] = ALL_COLUMN[a]][0];
-					// column.id = [ALL_COLUMN[column.id - 1].id, ALL_COLUMN[column.id - 1].id = column.id][0];
-					ALL_COLUMN[a].id--;
-					ALL_COLUMN[b].id++;
-					// column.id--;
-					emptyDiv.style.order = [ALL_COLUMN[a].obj.style.order , ALL_COLUMN[a].obj.style.order = emptyDiv.style.order][0];
-					console.log(column.id);
-					console.log(ALL_COLUMN);
+				if (e.pageX > startLeft + 256 && e.pageX < WRAPPER.lastElementChild.previousElementSibling.getBoundingClientRect().left) {
+					let post = emptyDiv.nextElementSibling.nextElementSibling;
+
+					emptyDiv.remove();
+					WRAPPER.insertBefore(emptyDiv, post);
+
 					startLeft += 256;
 				};
 
@@ -74,7 +68,7 @@ window.onload = function () {
 
 		column.obj.querySelector('.form__btn').onclick = function () {
 			let content = column.obj.querySelector('.textarea');
-			let	obj = new Note (content.value , column.obj);
+			let	obj = new Note (content.value, column.obj);
 			content.value = '';
 		};
 
@@ -82,7 +76,7 @@ window.onload = function () {
 	};
 
 	function Column (title) {
-		if (!title) throw 'Enter title of column';
+		if (!title) title  = 'Title';
 		let contextCol = this;
 
 		contextCol.title = title;
@@ -107,18 +101,15 @@ window.onload = function () {
 
 		button.innerHTML = 'Create';
 
-		let red	= Math.floor(Math.random() * 255);
-		let	green = Math.floor(Math.random() * 255);
-		let	blue = Math.floor(Math.random() * 255);
+		let red	= Math.round(Math.random() * 257 - 0.5);
+		let	green = Math.round(Math.random() * 257 - 0.5);
+		let	blue = Math.round(Math.random() * 257 - 0.5);
 		let	color = '#' +
 						(red = (red > 16) ? red.toString(16) : '0' + red.toString(16)) +
 						(green = (green > 16) ? green.toString(16) : '0' + green.toString(16)) +
 						(blue = (blue > 16) ? blue.toString(16) : '0' + blue.toString(16));
 
 		mainColumn.style.background = color;
-		mainColumn.style.order = ALL_COLUMN.length;
-
-		contextCol.id = ALL_COLUMN.length;
 
 		form.appendChild(textareaCol);
 		form.appendChild(button);
@@ -130,8 +121,8 @@ window.onload = function () {
 		contextCol.obj = mainColumn;
 	};
 
-	function Note (str , parent) {
-		if (!str) throw 'There is not content';
+	function Note (str, parent) {
+		if (!str) str = 'New note';
 		let context = this;
 		let	div = document.createElement('div');
 		let	divContent = document.createElement('div');
@@ -150,7 +141,7 @@ window.onload = function () {
 		parent.querySelector('.notes').appendChild(div);
 	};
 
-	function Button (type , obj) {
+	function Button (type, obj) {
 		let btn = document.createElement('button');
 		if (type === 'remove') {
 			btn.className = 'remove-note';
@@ -159,7 +150,7 @@ window.onload = function () {
 			};
 		} else if (type === 'edit') {
 			btn.className = 'edit-note';
-			btn.onclick = function () { 										// btn
+			btn.onclick = function () {
 				let textarea = document.querySelector('.edit-textarea');
 				let	bg = document.querySelector('.pop-up-meny');
 				textarea.value = obj.context;
@@ -178,4 +169,4 @@ window.onload = function () {
 		};
 		return btn;
 	};
-};
+}
