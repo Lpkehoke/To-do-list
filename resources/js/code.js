@@ -1,11 +1,9 @@
 'use strict'
-//уведомление
 //кружочки ( поменять )
 //Перетаскивание на телефоне
 //Перетаскивание записей
 //Сделать редактирование через нажатие на Название
 //При нажатие на текст открывается поп ап окно
-//СДелать растягивание textarea
 //СДелать сворачивание на зеленый кружок
 //Сделать запись в local storage
 window.onload = function () {
@@ -75,6 +73,9 @@ window.onload = function () {
 			let content = column.obj.querySelector('.textarea');
 			let	obj = new Note (content.value, column.obj);
 			content.value = '';
+			let textarea = column.obj.querySelector('.form__textarea');
+			textarea.style.height = "";
+			textarea.style.height = ( 25 + textarea.scrollHeight ) + "px";
 		};
 
 		document.querySelector('.title-new-column').value = '';
@@ -94,9 +95,9 @@ window.onload = function () {
 		let	hTitle = document.createElement('h3');
 
 		let removeBtn = new Button('remove' , {mainProperty: mainColumn});
-		let editBtn = new Button('edit' , {h: hTitle , context: contextCol.title});
 
 		hTitle.innerHTML = title;
+		/*hTitle.className = 'title-default';*/
 
 		divNotes.className = 'notes';
 		form.className = 'form';
@@ -106,24 +107,31 @@ window.onload = function () {
 
 		button.innerHTML = 'Create';
 
-		let red	= Math.round(Math.random() * 257 - 0.5);
-		let	green = Math.round(Math.random() * 257 - 0.5);
-		let	blue = Math.round(Math.random() * 257 - 0.5);
-		let	color = '#' +
-						(red = (red > 16) ? red.toString(16) : '0' + red.toString(16)) +
-						(green = (green > 16) ? green.toString(16) : '0' + green.toString(16)) +
-						(blue = (blue > 16) ? blue.toString(16) : '0' + blue.toString(16));
+		textareaCol.onkeyup = function () {
+			textareaCol.style.height = "";
+			textareaCol.style.height = ( 25 + textareaCol.scrollHeight ) + "px";
+		};
 
-		mainColumn.style.background = color;
+		mainColumn.style.background = getColor();
 
 		form.appendChild(textareaCol);
 		form.appendChild(button);
 		mainColumn.appendChild(hTitle);
-		mainColumn.appendChild(editBtn);
 		mainColumn.appendChild(removeBtn);
 		mainColumn.appendChild(divNotes);
 		mainColumn.appendChild(form);
 		contextCol.obj = mainColumn;
+
+		function getColor () {
+			let red	= Math.round(Math.random() * 257 - 0.5);
+			let	green = Math.round(Math.random() * 257 - 0.5);
+			let	blue = Math.round(Math.random() * 257 - 0.5);
+			let	color = '#' +
+							(red = (red > 16) ? red.toString(16) : '0' + red.toString(16)) +
+							(green = (green > 16) ? green.toString(16) : '0' + green.toString(16)) +
+							(blue = (blue > 16) ? blue.toString(16) : '0' + blue.toString(16));
+			return color;
+		};
 	};
 
 	function Note (str, parent) {
@@ -148,18 +156,27 @@ window.onload = function () {
 
 	function Button (type, obj) {
 		let btn = document.createElement('button');
+		let menu = document.querySelector('.pop-up-meny');
+
 		if (type === 'remove') {
 			btn.className = 'remove-note';
 			btn.onclick = function () {
-				obj.mainProperty.remove();
+				popUp();
+				let removeBtn = document.getElementsByClassName('remove__btn');
+				removeBtn[0].onclick = function () {
+					obj.mainProperty.remove();
+					menu.style.display = 'none';
+				};
+				removeBtn[1].onclick = function () {
+					menu.style.display = 'none';
+				};
 			};
 		} else if (type === 'edit') {
 			btn.className = 'edit-note';
 			btn.onclick = function () {
+				popUp();
 				let textarea = document.querySelector('.edit-textarea');
-				let	bg = document.querySelector('.pop-up-meny');
 				textarea.value = obj.context;
-				bg.style.display = 'block';
 				document.querySelector('.save').onclick = function () {
 					return function () {
 						obj.h.innerHTML = textarea.value;
@@ -167,11 +184,28 @@ window.onload = function () {
 						bg.style.display = 'none';
 					};
 				}();
-				document.querySelector('.pop-up__bg').onclick = function () {
-					bg.style.display = 'none';
-				};
 			};
 		};
 		return btn;
+
+		function popUp () {
+			let	bg = document.querySelector('.pop-up-meny');
+			bg.style.display = 'block';
+			menu.setAttribute('data-status', type);
+			let contentPopUp = menu.getElementsByClassName('pop-up__element');
+
+			if (type === 'edit') { /// костыль!! нужно убрать!!
+				contentPopUp[1].style.display = 'none';
+				contentPopUp[0].style.display = 'flex';
+			}
+			else if (type === 'remove') {
+				contentPopUp[0].style.display = 'none';
+				contentPopUp[1].style.display = 'flex';
+			}
+
+			document.querySelector('.pop-up__bg').onclick = function () {
+				bg.style.display = 'none';
+			};
+		};
 	};
 };

@@ -38,6 +38,7 @@ body,
 .form__textarea {
 	resize: none;
 	outline: none;
+	overflow: hidden;
 	padding: 0.2em;
 	margin: 0.2em 0;
 }
@@ -96,6 +97,13 @@ body,
 	margin: 0.2em 0;
 }
 
+.title-default {
+	resize: none;
+	background: #BBB;
+	outline: none;
+	padding: 0.5em;
+}
+
 /*** pop up **/
 .pop-up-meny {
 	width: 100%;
@@ -105,21 +113,52 @@ body,
 	display: none;
 }
 
-.login-pop-up {
+
+.pop-up__element {
 	position: fixed;
-	left: 50%;
-	top: 50%;
-	margin-left: -7.5em;
-	margin-top: -6em;
+	margin: auto;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
 	z-index: 10;
 	text-align: center;
 	background: white;
 	border: 0.05em solid black;
-	display: flex;
 	flex-direction: column;
 	padding: 0.5em;
 	border-radius: 0.8em;
+	display: none;
 }
+
+.pop-up__edit {
+	width: 18em;
+	height: 13em;
+}
+
+.pop-up__remove {
+	width: 20em;
+	height: 10em;
+}
+
+
+.remove__btn {
+	border: none;
+	background: grey;
+	padding: 0.5em;
+	margin: 0.5em;
+}
+
+.remove__btn-yes {
+	background: red;
+}
+/*.pop-up-meny[data-status="edit"]:nth-child(2) {
+	display: flex;
+}
+
+.pop-up-meny[data-status="remove"]:nth-child(3) {
+	display: flex;
+}*/
 
 .__grey-bg {
 	background: black;
