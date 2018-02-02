@@ -36,11 +36,12 @@ body,
 }
 
 .form__textarea {
+	height: 4.562em;
+	margin: 0.2em 0;
+	padding: 0.2em;
 	resize: none;
 	outline: none;
 	overflow: hidden;
-	padding: 0.2em;
-	margin: 0.2em 0;
 }
 
 .form__btn,
@@ -61,32 +62,46 @@ body,
 
 .notes__note {
 	width: 15em;
-	padding: 0.2em;
+	padding: 0.6em 0.2em;
 	border: 0.01em solid black;
-	margin: 0.2em 0;
+	margin: 0.8em 0;
 	background: #BBB;
 	word-wrap: break-word;
+	cursor: pointer;
 }
 
 .remove-note,
 .edit-note {
+	background-color: transparent;
 	position: absolute;
-	right: 0.1em;
+	top: 0em;
+	right: -0.1em;
 	z-index: 1;
-	width: 1em;
-	height: 1em;
+	height: 1.6em;
+	width: 1.6em;
+	margin: 0.1em;
+	border: 1px solid #000;
 	border-radius: 100%;
-	background: #FF0000;
-	border: 0;
 	outline: none;
 	cursor: pointer;
-	margin: 0.1em;
-	border: 0.01em black solid;
+	font-size: 12px;
+	line-height: 12px;
+	text-align: center;
+	vertical-align: middle;
+	color: #000;
+	background: red;
+}
+
+.notes .remove-note {
+	background: red;
+	right: -0.2em;
+	top: -0.8em;
 }
 
 .edit-note {
-	right: 1.2em;
 	background: #00FF00;
+	right: 1.5em;
+	top: -0.8em;
 }
 
 .notes div {
@@ -98,10 +113,23 @@ body,
 }
 
 .title-default {
-	resize: none;
-	background: #BBB;
+	background: transparent;
+	height: 1.5em;
+	margin: 0.5em 0;
+	padding: 0 0.5em;
+	border: 0;
+	border-bottom: 1px solid #000;
+	word-wrap: break-word;
 	outline: none;
-	padding: 0.5em;
+	font-weight: bold;
+	font-size: 20px;
+	resize: none;
+}
+
+.title-default:focus {
+	background-color: #f5f5f5
+	;
+	border: 1px solid #000;
 }
 
 /*** pop up **/
@@ -133,7 +161,7 @@ body,
 
 .pop-up__edit {
 	width: 18em;
-	height: 13em;
+	height: 7em;
 }
 
 .pop-up__remove {

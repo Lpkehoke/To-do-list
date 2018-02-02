@@ -1,17 +1,16 @@
 'use strict'
-//кружочки ( поменять )
 //Перетаскивание на телефоне
 //Перетаскивание записей
-//Сделать редактирование через нажатие на Название
-//При нажатие на текст открывается поп ап окно
 //СДелать сворачивание на зеленый кружок
 //Сделать запись в local storage
 window.onload = function () {
 
 	let WRAPPER = document.querySelector('.wrapper');
+	let POP_UP_BG = document.querySelector('.pop-up-meny');
 
 	document.querySelector('.btn-for-new-column').onclick = function () {
 		let column = new Column (document.querySelector('.title-new-column').value);
+
 		column.obj.onmousedown = function (e) {
 			if (e.target !== column.obj) return;
 
@@ -69,14 +68,21 @@ window.onload = function () {
 
 		WRAPPER.insertBefore(column.obj , document.querySelector('.div-for-new-column'));
 
+		console.log(column.obj.firstElementChild);
+		let ourTitle = column.obj.firstElementChild;
+
+		ourTitle.style.height = ( 3 + ourTitle.scrollHeight ) + "px";
+		console.log('oshibka');
+
 		column.obj.querySelector('.form__btn').onclick = function () {
 			let content = column.obj.querySelector('.textarea');
 			let	obj = new Note (content.value, column.obj);
 			content.value = '';
 			let textarea = column.obj.querySelector('.form__textarea');
 			textarea.style.height = "";
-			textarea.style.height = ( 25 + textarea.scrollHeight ) + "px";
+			textarea.style.height = ( 3 + textarea.scrollHeight ) + "px";
 		};
+
 
 		document.querySelector('.title-new-column').value = '';
 	};
@@ -92,12 +98,17 @@ window.onload = function () {
 		let	textareaCol = document.createElement('textarea');
 		let	button = document.createElement('button');
 		let	mainColumn = document.createElement('div');
-		let	hTitle = document.createElement('h3');
+		let	hTitle = document.createElement('textarea');
 
 		let removeBtn = new Button('remove' , {mainProperty: mainColumn});
 
 		hTitle.innerHTML = title;
-		/*hTitle.className = 'title-default';*/
+		hTitle.className = 'title-default';
+
+		hTitle.onkeyup = function () {
+			hTitle.style.height = "";
+			hTitle.style.height = ( 3 + hTitle.scrollHeight ) + "px";
+		};
 
 		divNotes.className = 'notes';
 		form.className = 'form';
@@ -109,7 +120,7 @@ window.onload = function () {
 
 		textareaCol.onkeyup = function () {
 			textareaCol.style.height = "";
-			textareaCol.style.height = ( 25 + textareaCol.scrollHeight ) + "px";
+			textareaCol.style.height = ( 3 + textareaCol.scrollHeight ) + "px";
 		};
 
 		mainColumn.style.background = getColor();
@@ -148,6 +159,19 @@ window.onload = function () {
 		let removeBtn = new Button('remove' , {mainProperty: div});
 		let editBtn = new Button('edit' , {h: divContent , context: context.content});
 
+		divContent.onclick = function () {
+			popUp('edit');
+			let textarea = document.querySelector('.edit-textarea');
+			textarea.value = context.content;
+			document.querySelector('.save').onclick = function () {
+				return function () {
+					divContent.innerHTML = textarea.value;
+					context.content = textarea.value;
+					POP_UP_BG.style.display = 'none';
+				};
+			}();
+		};
+
 		div.appendChild(removeBtn);
 		div.appendChild(editBtn);
 		div.appendChild(divContent);
@@ -156,13 +180,16 @@ window.onload = function () {
 
 	function Button (type, obj) {
 		let btn = document.createElement('button');
-		let menu = document.querySelector('.pop-up-meny');
+		let menu = document.querySelector('.pop-up-meny'); //c латинского - мену
 
 		if (type === 'remove') {
 			btn.className = 'remove-note';
+			btn.innerHTML = '&#10060';
+
 			btn.onclick = function () {
-				popUp();
+				popUp(type);
 				let removeBtn = document.getElementsByClassName('remove__btn');
+
 				removeBtn[0].onclick = function () {
 					obj.mainProperty.remove();
 					menu.style.display = 'none';
@@ -173,39 +200,32 @@ window.onload = function () {
 			};
 		} else if (type === 'edit') {
 			btn.className = 'edit-note';
-			btn.onclick = function () {
-				popUp();
-				let textarea = document.querySelector('.edit-textarea');
-				textarea.value = obj.context;
-				document.querySelector('.save').onclick = function () {
-					return function () {
-						obj.h.innerHTML = textarea.value;
-						obj.context = textarea.value;
-						bg.style.display = 'none';
-					};
-				}();
-			};
+			btn.innerHTML = '...';
 		};
 		return btn;
 
-		function popUp () {
-			let	bg = document.querySelector('.pop-up-meny');
-			bg.style.display = 'block';
-			menu.setAttribute('data-status', type);
-			let contentPopUp = menu.getElementsByClassName('pop-up__element');
+		};
 
-			if (type === 'edit') { /// костыль!! нужно убрать!!
-				contentPopUp[1].style.display = 'none';
-				contentPopUp[0].style.display = 'flex';
-			}
-			else if (type === 'remove') {
-				contentPopUp[0].style.display = 'none';
-				contentPopUp[1].style.display = 'flex';
-			}
 
-			document.querySelector('.pop-up__bg').onclick = function () {
-				bg.style.display = 'none';
-			};
+	function popUp (type) {
+		let menu = document.querySelector('.pop-up-meny');
+
+		POP_UP_BG.style.display = 'block';
+		menu.setAttribute('data-status', type);
+		let contentPopUp = menu.getElementsByClassName('pop-up__element');
+
+		if (type === 'edit') { /// костыль!! нужно убрать!!***********************
+			contentPopUp[1].style.display = 'none';
+			contentPopUp[0].style.display = 'flex';
+		}
+		else if (type === 'remove') {
+			contentPopUp[0].style.display = 'none';
+			contentPopUp[1].style.display = 'flex';
+		}
+
+		document.querySelector('.pop-up__bg').onclick = function () {
+			POP_UP_BG.style.display = 'none';
 		};
 	};
+
 };
