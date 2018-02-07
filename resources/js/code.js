@@ -1,8 +1,11 @@
 'use strict'
 //Перетаскивание на телефоне
 //Перетаскивание записей
-//СДелать сворачивание на зеленый кружок
 //Сделать запись в local storage
+
+/*
+Сделать класс кнопки и класс поп ап окна, теперь поп ап генерируется в классе
+*/
 window.onload = function () {
 
 	let WRAPPER = document.querySelector('.wrapper');
@@ -11,7 +14,10 @@ window.onload = function () {
 	document.querySelector('.btn-for-new-column').onclick = function () {
 		let column = new Column (document.querySelector('.title-new-column').value);
 
-		column.obj.onmousedown = function (e) {
+		column.obj.onmousedown = moveColumn;
+		column.obj.touchstart = moveColumn;
+
+		function moveColumn(e) {
 			if (e.target !== column.obj) return;
 
 			let startLeft = column.obj.getBoundingClientRect().left;
@@ -26,13 +32,15 @@ window.onload = function () {
 
 			WRAPPER.appendChild(column.obj);
 
-			moveAt(e);
+			moveAtColumn(e);
 
-			document.onmousemove = function(e) {
-				moveAt(e);
-			};
+			document.onmousemove = movingColumn;
+			document.touchmove = movingColumn;
 
-			column.obj.onmouseup = function() {
+			column.obj.onmouseup = stopMovingColumn;
+			column.obj.touchend = stopMovingColumn;
+
+			function stopMovingColumn() {
 				WRAPPER.insertBefore(column.obj, emptyDiv);
 				column.obj.style.position = 'relative';
 				column.obj.style.left = 0;
@@ -43,9 +51,14 @@ window.onload = function () {
 				column.obj.onmouseup = null;
 			};
 
-			function moveAt(e) {
+			function movingColumn(e) {
+				moveAtColumn(e);
+			};
+
+			function moveAtColumn(e) {
 				if (e.pageX < startLeft && e.pageX > 16) {
 					let pred = emptyDiv.previousElementSibling;
+					console.log(pred);
 
 					emptyDiv.remove();
 					WRAPPER.insertBefore(emptyDiv, pred);
@@ -68,19 +81,89 @@ window.onload = function () {
 
 		WRAPPER.insertBefore(column.obj , document.querySelector('.div-for-new-column'));
 
-		console.log(column.obj.firstElementChild);
 		let ourTitle = column.obj.firstElementChild;
 
 		ourTitle.style.height = ( 3 + ourTitle.scrollHeight ) + "px";
-		console.log('oshibka');
 
 		column.obj.querySelector('.form__btn').onclick = function () {
 			let content = column.obj.querySelector('.textarea');
-			let	obj = new Note (content.value, column.obj);
+			let	note = new Note (content.value, column.obj);
+
 			content.value = '';
 			let textarea = column.obj.querySelector('.form__textarea');
 			textarea.style.height = "";
 			textarea.style.height = ( 3 + textarea.scrollHeight ) + "px";
+
+
+			note.obj.onmousedown = function moveNote(e) { ///очень большой костыль, исправить его === исправить архитектуру!!
+				if (e.target !== note.obj.lastElementChild) return;
+
+				let startLeft = note.obj.getBoundingClientRect().left;
+				let startTop = note.obj.getBoundingClientRect().top;
+				let emptyNote = document.createElement('div');
+				let noteParent = note.obj.parentElement;
+
+				emptyNote.className = 'empty-note';
+				emptyNote.style.height = note.obj.offsetHeight + 'px';
+
+				noteParent.insertBefore(emptyNote , note.obj);
+
+				note.obj.style.position = 'absolute';
+				note.obj.style.zIndex = 100;
+
+				noteParent.appendChild(note.obj);
+
+				moveAtNote(e);
+
+				column.obj.onmousemove = movingNote;
+				column.obj.touchmove = movingNote;
+
+				column.obj.onmouseup = stopMovingNote;
+
+				function stopMovingNote() {
+					noteParent.insertBefore(note.obj, emptyNote);
+					note.obj.style.position = 'relative';
+					note.obj.style.zIndex = 1;
+					emptyNote.remove();
+					column.obj.onmousemove = null;
+					note.obj.onmouseup = null;
+				};
+
+				function movingNote(e) {
+					moveAtNote(e);
+				};
+
+				function moveAtNote(e) {
+					console.log('****');
+					console.log('empty = ' + emptyNote.offsetHeight);
+					console.log('y = ' +  e.pageY);
+					console.log('top = ' + startTop);
+					console.log('up: ' + (startTop + 16) + ' :: ' + (e.pageY < (startTop + 16)));
+					console.log('down: ' + (startTop + emptyNote.offsetHeight) + ' :: ' + (e.pageY > (startTop + emptyNote.offsetHeight)));
+					console.log('****');
+					if (e.pageY < (startTop + 16) && emptyNote.previousElementSibling) {
+						console.log('*******************up*************************');
+						let previous = emptyNote.previousElementSibling;
+						emptyNote.remove();
+
+						noteParent.insertBefore(emptyNote, previous);
+						startTop -= (previous.offsetHeight);
+					};
+
+					if (e.pageY > (startTop + emptyNote.offsetHeight) && emptyNote.nextElementSibling.nextElementSibling) {
+						console.log('*******************down*************************');
+						let post = emptyNote.nextElementSibling.nextElementSibling;
+
+						emptyNote.remove();
+						noteParent.insertBefore(emptyNote, post);
+
+						startTop += (emptyNote.nextElementSibling.offsetHeight);
+					};
+
+					note.obj.style.left = e.pageX - note.obj.offsetWidth / 2 + 'px';
+					note.obj.style.top = e.pageY - note.obj.offsetHeight / 2 + 'px';
+				};
+			};
 		};
 
 
@@ -155,9 +238,11 @@ window.onload = function () {
 		divContent.className = 'notes__note';
 
 		divContent.innerHTML = str;
+		divContent.style.overflow = 'hidden';
 
 		let removeBtn = new Button('remove' , {mainProperty: div});
-		let editBtn = new Button('edit' , {h: divContent , context: context.content});
+		let editBtn = new Button('hidden' , {h: divContent});
+
 
 		divContent.onclick = function () {
 			popUp('edit');
@@ -176,6 +261,7 @@ window.onload = function () {
 		div.appendChild(editBtn);
 		div.appendChild(divContent);
 		parent.querySelector('.notes').appendChild(div);
+		context.obj = div;
 	};
 
 	function Button (type, obj) {
@@ -198,9 +284,21 @@ window.onload = function () {
 					menu.style.display = 'none';
 				};
 			};
-		} else if (type === 'edit') {
+		} else if (type === 'hidden') {
 			btn.className = 'edit-note';
 			btn.innerHTML = '...';
+			obj.h.style.height = '1.9em';
+			btn.onclick = function() {
+				if(obj.h.dataset.show === 'show') {
+					obj.h.dataset.show = 'hidden';
+					obj.h.style = '';
+					obj.h.style.height = '1.9em';
+				} else {
+					obj.h.dataset.show = 'show';
+					obj.h.style = '';
+					obj.h.style.minHeight = '1.9em';
+				};
+			};
 		};
 		return btn;
 

@@ -60,7 +60,8 @@ body,
 	width: 100%;
 }
 
-.notes__note {
+.notes__note,
+.empty-note {
 	width: 15em;
 	padding: 0.6em 0.2em;
 	border: 0.01em solid black;
@@ -68,6 +69,10 @@ body,
 	background: #BBB;
 	word-wrap: break-word;
 	cursor: pointer;
+}
+
+.empty-note {
+	background: #f5f;
 }
 
 .remove-note,
